@@ -44,9 +44,43 @@ async function run() {
         })
 
         // get user info
-        app.get('/users', async (req, res) => {
-            const cursor = userCollection.find();
-            const result = await cursor.toArray();
+        app.get('/users', async (req, res) => {     
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            const result = await userCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        // make user as teacher or change role
+        app.patch('/users/teacher/:id', async(req, res) =>{
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id)};
+            const updateDoc = {
+                $set:{
+                    role: 'teacher'
+                }
+            }
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+
+        })
+
+
+
+
+         // use patch for applyforTeaching status change to accepted
+         app.patch('/applyforTeaching/teacher/:id', async(req, res) =>{
+            const id = req.params.id;
+            const { status } = req.body;
+            const filter = {_id: new ObjectId(id)};
+            const updateDoc = {
+                $set:{
+                    status: status
+                }
+            }
+            const result = await applyTeachingCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
 
