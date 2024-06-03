@@ -45,7 +45,7 @@ async function run() {
         })
 
         // get user info
-        app.get('/users', async (req, res) => {     
+        app.get('/users', async (req, res) => {
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
@@ -54,13 +54,13 @@ async function run() {
             res.send(result);
         })
 
-        // make user as teacher or change role
-        app.patch('/users/teacher/:id', async(req, res) =>{
+        // make user as teacher or  admin / change role
+        app.patch('/users/teacher/:id', async (req, res) => {
             const id = req.params.id;
             const { role } = req.body;
-            const filter = {_id: new ObjectId(id)};
+            const filter = { _id: new ObjectId(id) };
             const updateDoc = {
-                $set:{
+                $set: {
                     role: role
                 }
             }
@@ -71,22 +71,20 @@ async function run() {
 
 
 
-
-         // use patch for applyforTeaching status change to accepted
-         app.patch('/applyforTeaching/teacher/:id', async(req, res) =>{
+        // Teaching related api
+        // use patch for applyforTeaching status change to accepted
+        app.patch('/applyforTeaching/teacher/:id', async (req, res) => {
             const id = req.params.id;
             const { status } = req.body;
-            const filter = {_id: new ObjectId(id)};
+            const filter = { _id: new ObjectId(id) };
             const updateDoc = {
-                $set:{
+                $set: {
                     status: status
                 }
             }
             const result = await applyTeachingCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
-
-
 
         // Apply For Teaching post method
         app.post('/applyforTeaching', async (req, res) => {
@@ -95,9 +93,19 @@ async function run() {
             res.send(result);
         })
 
+        // get apply for teaching information
         app.get('/applyforTeaching', async (req, res) => {
             const cursor = applyTeachingCollection.find();
             const result = await cursor.toArray();
+            res.send(result);
+        })
+
+
+        //  classes related api
+        // add class for database use post method
+        app.post('/classes', async (req, res) => {
+            const newClasses = req.body;
+            const result = await classCollection.insertOne(newClasses);
             res.send(result);
         })
 
