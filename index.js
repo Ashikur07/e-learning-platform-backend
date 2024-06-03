@@ -29,6 +29,7 @@ async function run() {
     try {
         // database collection 
         const userCollection = client.db('assignment_12').collection('users');
+        const classCollection = client.db('assignment_12').collection('classes');
         const applyTeachingCollection = client.db('assignment_12').collection('applyforTeaching');
 
         // user related api
@@ -56,10 +57,11 @@ async function run() {
         // make user as teacher or change role
         app.patch('/users/teacher/:id', async(req, res) =>{
             const id = req.params.id;
+            const { role } = req.body;
             const filter = {_id: new ObjectId(id)};
             const updateDoc = {
                 $set:{
-                    role: 'teacher'
+                    role: role
                 }
             }
             const result = await userCollection.updateOne(filter, updateDoc);
