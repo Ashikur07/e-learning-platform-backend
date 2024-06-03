@@ -109,11 +109,26 @@ async function run() {
             res.send(result);
         })
 
-         // get apply for teaching information
-         app.get('/classes', async (req, res) => {
+        // get apply for teaching information
+        app.get('/classes', async (req, res) => {
             const cursor = classCollection.find();
             const result = await cursor.toArray();
             res.send(result);
+        })
+
+        // add a patch method in classes database collection
+        app.patch('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            const { status } = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    status: status
+                }
+            }
+            const result = await classCollection.updateOne(filter, updateDoc);
+            res.send(result);
+
         })
 
 
