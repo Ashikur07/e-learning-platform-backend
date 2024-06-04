@@ -101,6 +101,7 @@ async function run() {
         })
 
 
+
         //  classes related api
         // add class for database use post method
         app.post('/classes', async (req, res) => {
@@ -113,6 +114,14 @@ async function run() {
         app.get('/classes', async (req, res) => {
             const cursor = classCollection.find();
             const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        // get single class data
+        app.get('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await classCollection.findOne(query);
             res.send(result);
         })
 
@@ -129,6 +138,37 @@ async function run() {
             const result = await classCollection.updateOne(filter, updateDoc);
             res.send(result);
 
+        })
+
+        // add a delete method in class collection
+        app.delete('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await classCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        // update class data
+        app.put('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updatedClasses = req.body;
+            console.log(updatedClasses);
+
+            const classes = {
+                $set: {
+                     title: updatedClasses.title,
+                     image: updatedClasses.image,
+                     price: updatedClasses.price,
+                     name: updatedClasses.name,
+                     email: updatedClasses.email,
+                     description: updatedClasses.description,
+                     status: updatedClasses.status,
+                }
+            }
+            const result = await classCollection.updateOne(filter, classes, options);
+            res.send(result);
         })
 
 
