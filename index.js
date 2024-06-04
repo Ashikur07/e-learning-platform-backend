@@ -165,6 +165,7 @@ async function run() {
                      email: updatedClasses.email,
                      description: updatedClasses.description,
                      status: updatedClasses.status,
+                     enrolment: updatedClasses.enrolment,
                 }
             }
             const result = await classCollection.updateOne(filter, classes, options);
