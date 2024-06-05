@@ -5,6 +5,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY)
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -31,6 +32,7 @@ async function run() {
         const userCollection = client.db('assignment_12').collection('users');
         const classCollection = client.db('assignment_12').collection('classes');
         const applyTeachingCollection = client.db('assignment_12').collection('applyforTeaching');
+        const paymentCollection = client.db('assignment_12').collection('payments');
 
         // user related api
         app.post('/users', async (req, res) => {
@@ -158,19 +160,43 @@ async function run() {
 
             const classes = {
                 $set: {
-                     title: updatedClasses.title,
-                     image: updatedClasses.image,
-                     price: updatedClasses.price,
-                     name: updatedClasses.name,
-                     email: updatedClasses.email,
-                     description: updatedClasses.description,
-                     status: updatedClasses.status,
-                     enrolment: updatedClasses.enrolment,
+                    title: updatedClasses.title,
+                    image: updatedClasses.image,
+                    price: updatedClasses.price,
+                    name: updatedClasses.name,
+                    email: updatedClasses.email,
+                    description: updatedClasses.description,
+                    status: updatedClasses.status,
+                    enrolment: updatedClasses.enrolment,
                 }
             }
             const result = await classCollection.updateOne(filter, classes, options);
             res.send(result);
         })
+
+        // payment intent
+        app.post("/create-payment-intent", async (req, res) => {
+            const { price } = req.body;
+            const amount = parseInt(price * 100);
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+
+            res.send({
+                clientSecret: paymentIntent.client_secret
+            })
+        })
+
+        // payment infor save in the database
+        app.post('/payments', async (req, res) => {
+            const payments = req.body;
+            const result = await paymentCollection.insertOne(payments);
+            res.send(result);
+        })
+
 
 
         // Send a ping to confirm a successful connection
