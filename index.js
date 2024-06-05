@@ -197,6 +197,16 @@ async function run() {
             res.send(result);
         })
 
+        // get payment some info 
+        app.get('/payments', async (req, res) => {
+            let query = {};
+            if (req.query?.studentEmail) {
+                query = { studentEmail: req.query.studentEmail }
+            }
+            const result = await paymentCollection.find(query).toArray();
+            res.send(result);
+        })
+
 
 
         // Send a ping to confirm a successful connection
