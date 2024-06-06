@@ -33,6 +33,7 @@ async function run() {
         const classCollection = client.db('assignment_12').collection('classes');
         const applyTeachingCollection = client.db('assignment_12').collection('applyforTeaching');
         const paymentCollection = client.db('assignment_12').collection('payments');
+        const assignmentCollection = client.db('assignment_12').collection('assignments');
 
         // user related api
         app.post('/users', async (req, res) => {
@@ -127,20 +128,21 @@ async function run() {
             res.send(result);
         })
 
+
         // add a patch method in classes database collection
         app.patch('/classes/:id', async (req, res) => {
             const id = req.params.id;
             const { status } = req.body;
+            const { enrolment } = req.body;
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
-                $set: {
-                    status: status
-                }
+                $set: { status: status},
+                $inc: { enrolment: parseInt(enrolment) }
             }
             const result = await classCollection.updateOne(filter, updateDoc);
             res.send(result);
-
         })
+
 
         // add a delete method in class collection
         app.delete('/classes/:id', async (req, res) => {
@@ -190,6 +192,7 @@ async function run() {
             })
         })
 
+
         // payment infor save in the database
         app.post('/payments', async (req, res) => {
             const payments = req.body;
@@ -204,6 +207,23 @@ async function run() {
                 query = { studentEmail: req.query.studentEmail }
             }
             const result = await paymentCollection.find(query).toArray();
+            res.send(result);
+        })
+
+
+        // assignment collection 
+        app.post('/assignments', async (req, res) => {
+            const payments = req.body;
+            const result = await assignmentCollection.insertOne(payments);
+            res.send(result);
+        })
+
+        app.get('/assignments', async (req, res) => {
+            let query = {};
+            if (req.query?.classId) {
+                query = { classId: req.query.classId }
+            }
+            const result = await assignmentCollection.find(query).toArray();
             res.send(result);
         })
 
