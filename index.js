@@ -34,6 +34,24 @@ async function run() {
         const applyTeachingCollection = client.db('assignment_12').collection('applyforTeaching');
         const paymentCollection = client.db('assignment_12').collection('payments');
         const assignmentCollection = client.db('assignment_12').collection('assignments');
+        const submitAssignmentCollection = client.db('assignment_12').collection('submitAssignments');
+        const feedbackCollection = client.db('assignment_12').collection('feedback');
+
+
+        // feedback post method
+        app.post('/feedback', async (req, res) => {
+            const newItems = req.body;
+            const result = await feedbackCollection.insertOne(newItems);
+            res.send(result);
+        })
+
+        // feedback get method
+        app.get('/feedback', async (req, res) => {
+            const cursor = feedbackCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
 
         // user related api
         app.post('/users', async (req, res) => {
@@ -134,10 +152,12 @@ async function run() {
             const id = req.params.id;
             const { status } = req.body;
             const { enrolment } = req.body;
+            const { assignmentSubmited } = req.body;
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
-                $set: { status: status},
-                $inc: { enrolment: parseInt(enrolment) }
+                $set: { status: status },
+                $inc: { enrolment: parseInt(enrolment) },
+                $inc: { assignmentSubmited: parseInt(assignmentSubmited) }
             }
             const result = await classCollection.updateOne(filter, updateDoc);
             res.send(result);
@@ -206,15 +226,24 @@ async function run() {
             if (req.query?.studentEmail) {
                 query = { studentEmail: req.query.studentEmail }
             }
+
             const result = await paymentCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        //get single payment data
+        app.get('/payments/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await paymentCollection.findOne(query);
             res.send(result);
         })
 
 
         // assignment collection 
         app.post('/assignments', async (req, res) => {
-            const payments = req.body;
-            const result = await assignmentCollection.insertOne(payments);
+            const assignments = req.body;
+            const result = await assignmentCollection.insertOne(assignments);
             res.send(result);
         })
 
@@ -224,6 +253,24 @@ async function run() {
                 query = { classId: req.query.classId }
             }
             const result = await assignmentCollection.find(query).toArray();
+            res.send(result);
+        })
+
+
+        // submit assignment 
+        app.post('/submitAssignments', async (req, res) => {
+            const assignments = req.body;
+            const result = await submitAssignmentCollection.insertOne(assignments);
+            res.send(result);
+        })
+
+        // get method added
+        app.get('/submitAssignments', async (req, res) => {
+            let query = {};
+            if (req.query?.courseId) {
+                query = { courseId: req.query.courseId }
+            }
+            const result = await submitAssignmentCollection.find(query).toArray();
             res.send(result);
         })
 
