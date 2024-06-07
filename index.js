@@ -154,15 +154,22 @@ async function run() {
         // add a patch method in classes database collection
         app.patch('/classes/:id', async (req, res) => {
             const id = req.params.id;
-            const { status } = req.body;
-            const { enrolment } = req.body;
-            const { assignmentSubmited } = req.body;
+            const { status, enrolment, assignmentSubmited } = req.body;
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: { status: status },
-                $inc: { enrolment: parseInt(enrolment) },
-                $inc: { assignmentSubmited: parseInt(assignmentSubmited) }
+                $inc: {}
+            };
+
+            if (enrolment !== undefined) {
+                updateDoc.$inc.enrolment = parseInt(enrolment, 10);
             }
+        
+            if (assignmentSubmited !== undefined) {
+                updateDoc.$inc.assignmentSubmited = parseInt(assignmentSubmited, 10);
+            }
+            
+        
             const result = await classCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
