@@ -116,8 +116,12 @@ async function run() {
 
         // get apply for teaching information
         app.get('/applyforTeaching', async (req, res) => {
-            const cursor = applyTeachingCollection.find();
-            const result = await cursor.toArray();
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+
+            const result = await applyTeachingCollection.find(query).toArray();
             res.send(result);
         })
 
@@ -131,7 +135,7 @@ async function run() {
             res.send(result);
         })
 
-        // get apply for teaching information
+        // get apply for classes information
         app.get('/classes', async (req, res) => {
             const cursor = classCollection.find();
             const result = await cursor.toArray();
