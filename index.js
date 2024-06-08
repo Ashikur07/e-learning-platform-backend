@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-// const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 // const cookieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
@@ -37,6 +37,32 @@ async function run() {
         const submitAssignmentCollection = client.db('assignment_12').collection('submitAssignments');
         const feedbackCollection = client.db('assignment_12').collection('feedback');
 
+        // jwt related api 
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            console.log('user for token', user)
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+
+            res.send({ token });
+        })
+
+        // middlewares 
+        const verifyToken = (req, res, next) => {
+            console.log('inside verify token', req.headers.authorization);
+            if (!req.headers.authorization) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+            const token = req.headers.authorization.split(' ')[1];
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+                if (err) {
+                    return res.status(401).send({ message: 'unauthorized access' })
+                }
+                req.decoded = decoded;
+                next();
+            })
+        }
+
+
 
         // feedback post method
         app.post('/feedback', async (req, res) => {
@@ -66,7 +92,8 @@ async function run() {
         })
 
         // get user info
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyToken, async (req, res) => {
+            console.log(req.headers);
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
@@ -115,7 +142,7 @@ async function run() {
         })
 
         // get apply for teaching information
-        app.get('/applyforTeaching', async (req, res) => {
+        app.get('/applyforTeaching',  verifyToken, async (req, res) => {
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
@@ -164,12 +191,12 @@ async function run() {
             if (enrolment !== undefined) {
                 updateDoc.$inc.enrolment = parseInt(enrolment, 10);
             }
-        
+
             if (assignmentSubmited !== undefined) {
                 updateDoc.$inc.assignmentSubmited = parseInt(assignmentSubmited, 10);
             }
-            
-        
+
+
             const result = await classCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
