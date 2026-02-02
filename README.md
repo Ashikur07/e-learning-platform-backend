@@ -2,7 +2,7 @@
 
 This is the server-side repository for **LearnQuest**, built with Node.js, Express.js, and MongoDB. It handles authentication, course management, payment processing, and role-based access control.
 
-🔗 **Live API URL:** `https://your-backend-live-link.com`
+🔗 **Live API URL:** `https://e-learning-platform-backend-five.vercel.app`
 
 ---
 
