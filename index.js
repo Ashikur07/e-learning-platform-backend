@@ -92,7 +92,7 @@ async function run() {
         })
 
         // get user info
-        app.get('/users', verifyToken, async (req, res) => {
+        app.get('/users', async (req, res) => {
             console.log(req.headers);
             let query = {};
             if (req.query?.email) {
@@ -320,7 +320,6 @@ async function run() {
 
     }
 }
-
 
 run().catch(console.dir);
 
