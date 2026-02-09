@@ -8,7 +8,7 @@ This is the server-side repository for **LearnQuest**, built with Node.js, Expre
 
 ## 🛠️ Technology Stack
 * **Runtime:** Node.js
-* **Framework:** Express.js
+* **Framework:** Express.js 
 * **Database:** MongoDB
 * **Authentication:** JSON Web Tokens (JWT) & Firebase
 * **Payments:** Stripe API 
